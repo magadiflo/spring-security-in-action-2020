@@ -52,3 +52,16 @@ la bandea -u de curl.
 
 Hasta este punto, la llamada nos devuelve **Hello!**. De esta forma podemos estar seguros que tenemos
 la dependencia de Spring Security instalado correctamente en nuestro proyecto.
+
+## [Pág. 39-40] Actores principales en la Arquitectura de Spring Security
+
+- El filtro de autenticación delega la solicitud de autenticación al administrador de autenticación y, en función de la
+  respuesta, configura el contexto de seguridad.
+- El administrador de autenticación utiliza el proveedor de autenticación para procesar la autenticación.
+- El proveedor de autenticación implementa la lógica de autenticación.
+- El servicio de detalles de usuario implementa la responsabilidad de administración de usuarios, que el proveedor de
+  autenticación usa en la lógica de autenticación.
+- El codificador de contraseñas implementa la administración de contraseñas, que el proveedor de autenticación usa en la
+  lógica de autenticación.
+- El contexto de seguridad mantiene los datos de autenticación después del proceso de autenticación
+![Arquitectura principal](./assets/Main-components-authentication-spring-security.png)
