@@ -64,4 +64,58 @@ la dependencia de Spring Security instalado correctamente en nuestro proyecto.
 - El codificador de contraseñas implementa la administración de contraseñas, que el proveedor de autenticación usa en la
   lógica de autenticación.
 - El contexto de seguridad mantiene los datos de autenticación después del proceso de autenticación
-![Arquitectura principal](./assets/Main-components-authentication-spring-security.png)
+  ![Arquitectura principal](./assets/Main-components-authentication-spring-security.png)
+
+---
+
+# Anulación de configuraciones predeterminadas
+
+## [Pág. 44] Anulando el componente UserDetailsService
+
+Como vimos, la aplicación usa este componente en el proceso de autenticación. Para poder sobreescribir el que viene por
+defecto en Spring Security, crearemos un @Bean de esta interfaz que retorna una implementación. Podemos crear nuestra
+propia implementación, pero por ahora usaremos una implementación propia de las muchas que tiene Spring Security
+**InMemoryUserDetailsManager**:
+
+````
+@Bean
+public UserDetailsService userDetailsService() {
+    UserDetails userDetails = User.builder()
+            .username("admin")
+            .password("12345")
+            .authorities("read")
+            .build();
+    InMemoryUserDetailsManager inMemoryUserDetailsManager = new InMemoryUserDetailsManager();
+    inMemoryUserDetailsManager.createUser(userDetails);
+    return inMemoryUserDetailsManager;
+}
+````
+
+Como observamos en el código anterior, se crea un usuario del tipo de la interfaz **UserDetails** a partir de la
+implementación concreta **User** de Spring Security. Quien implemente UserDetails, será el tipo de usuario
+que será conocido por Spring Security dentro de su arquitectura. Por ahora, solo digamos que estamos creando
+un usuario que Spring Security va a conocerlo como tal dentro de su arquitectura. Al usuario creado lo
+agregamos dentro de la implementación del UserDetailsService.
+
+**IMPORTANTE**, cuando se utiliza el **UserDetailsService predeterminado**, también **se configura automáticamente** un
+**PasswordEncoder**. Debido a que anulamos UserDetailsService, también tenemos que declarar un codificador de
+contraseñas. Si no lo hacemos, nos marcará un error, ya que tratará de buscar el codificador y no lo encontrará.
+
+````
+@Bean
+public PasswordEncoder passwordEncoder() {
+    return NoOpPasswordEncoder.getInstance();
+}
+````
+
+En el código anterior estamos usando una implementación de PasswordEncoder deprecado y no solo eso, sino que esa
+implementación no codifica el password y la comparación para verificar si las contraseñas coinciden la hace en
+texto plano, por eso mismo lo marcaron como deprecado, para que eviten su uso, pero para temas de pruebas,
+como ahora, sí nos viene bien usarlo momentáneamente, así que por ahora usaremos las contraseñas así, sin encriptarlas.
+
+Ahora hacemos la prueba enviando nuestro usuario configurado y como resultado
+debe mostrarnos el mensaje devuelto por el endpoint: **hello!**.
+
+````
+curl -v -u admin:12345 http://localhost:8080/greetings/hello
+````
