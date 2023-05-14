@@ -214,3 +214,101 @@ mejor separar y escribir responsabilidades lo más desacopladas posible en una a
 En conclusión, podríamos decir que es **mejor usar los @Bean UserDetailsService y PasswordEncoder (será la opción que
 dejaremos habilitada)** o si se opta por sobreescribir el método configure(AuthenticationManagerBuilder auth), definir
 los objetos por separado y no hacer la concatenación que vemos en el código del ejemplo anterior.
+
+## [Pág. 53] Anulando la implementación del AuthenticationProvider
+
+De acuerdo a la Arquitectura de Spring Security que mostramos al inicio, el **Authentication Provider**, se encarga de
+**implementar la lógica de autenticación**. Recibe la solicitud del Authentication Manager y delega la
+búsqueda del usuario en un **UserDetailsService** y la verificación de la contraseña en un **PasswordEncoder**.
+
+Por lo tanto, en este apartado veremos cómo sobreescribir el AuthenticationProvider para crear un
+AuthenticationProvider personalizado.
+
+Según el autor, **es importante respetar la Arquitectura de Spring Security,** ya que está diseñado con un bajo
+acoplamiento y con responsabilidades detalladas. Ese diseño es una de las cosas que hace que Spring Security
+sea flexible y fácil de usar. Ahora, dependiendo de cómo se haga uso de su flexibilidad, podríamos cambiar su
+diseño, pero **¡CUIDADO!**, tengamos cuidado con los enfoques que le demos, porque podrían complicar la solución.
+Por ejemplo, podríamos optar por anular el AuthenticationProvider de manera que, ya no necesitemos un
+UserDetailsService o PasswordEncoder. Para ello, crearemos la siguiente clase implementando de la interfaz
+AuthenticationProvider:
+
+````
+@Component
+public class CustomAuthenticationProvider implements AuthenticationProvider {
+    @Override
+    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+        String username = authentication.getName();
+        String password = String.valueOf(authentication.getCredentials());
+
+        if (username.equals("martin") && password.equals("12345")) {
+            return new UsernamePasswordAuthenticationToken(username, password, List.of());
+        }
+        throw new AuthenticationCredentialsNotFoundException("Error in authentication!!!");
+    }
+
+    @Override
+    public boolean supports(Class<?> authentication) {
+        return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
+    }
+}
+````
+
+**DONDE:**
+
+- El método **authentication.getName();** lo hereda la autenticación de la interfaz Principal.
+- La condición de la cláusula **if-else** reemplaza las responsabilidades de **UserDetailsService y PasswordEncoder**.
+  Por lo tanto, **aquí no es necesario que use los dos beans**, por lo que procederemos a eliminarlos
+  del archivo de configuración.
+
+Como observamos en el código anterior, el método **authenticate(Authentication authentication)** representa
+toda la lógica para la autenticación. Explicaré el uso del método **supports()** en detalle en el capítulo 5.
+Por el momento, te recomiendo que des por sentado su implementación. No es esencial para el ejemplo actual.
+
+**IMPORTANTE:**
+
+> Como se mencionó anteriormente, con esa forma de anular el AuthenticationProvider, ya no es necesario usar los dos
+> beans (UserDetailsService y PasswordEncoder). **¡PERO!**, si trabajamos con usuarios y contraseñas para la
+> autenticación, el autor sugiere que ```separemos la lógica de su administración, es decir, que lo apliquemos
+tal como fue diseñado la arquitectura de Spring Security, eso significa que deberíamos usar el UserDetailsService
+y PasswordEncoder, incluso cuando anulemos la implementación de la autenticación.```
+
+**Ahora, por motivos del ejemplo, continuaremos con la anulación del AuthenticationProvider sin la necesidad de usar
+el UserDetailsService y el PasswordEncoder.**
+
+**REGISTRANDO LA NUEVA IMPLEMENTACIÓN DEL AUTHENTICATION PROVIDER**
+
+En la clase de configuración, podemos registrar nuestro AuthenticationProvider personalizado en el método
+**configure(AuthenticationManagerBuilder auth)** que será sobreescrito de la clase abstracta
+WebSecurityConfigurerAdapter.
+
+````
+@Configuration
+public class ProjectConfig extends WebSecurityConfigurerAdapter {
+
+    private final CustomAuthenticationProvider customAuthenticationProvider;
+
+    public ProjectConfig(CustomAuthenticationProvider customAuthenticationProvider) {
+        this.customAuthenticationProvider = customAuthenticationProvider;
+    }
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.authenticationProvider(this.customAuthenticationProvider);
+    }
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.httpBasic();
+        http.authorizeRequests().anyRequest().authenticated();
+    }
+}
+````
+
+Probamos con curl enviándole las credenciales definidas de forma estática en el método **authenticate(Authentication
+authentication)** y como respuesta nos mostrará el mensaje **hello!**.  
+**NOTA**, en el método **configure(HttpSecurity http)** cambiamos el .permitAll() por .authenticated() para que nos
+pida las credenciales.
+
+````
+curl -v -u martin:12345 http://localhost:8080/greetings/hello
+````
