@@ -149,3 +149,68 @@ credencial alguno y como respuesta nos mostrará el mensaje **hello!**.
 ````
  curl -v http://localhost:8080/greetings/hello
 ````
+
+## [Pág. 50] Estableciendo la configuración de diferentes maneras
+
+Uno de los aspectos confusos de crear configuraciones con Spring Security es tener varias formas de
+configurar lo mismo. A continuación aprenderemos **alternativas para configurar UserDetailsService y
+PasswordEncoder**.
+
+En la clase de configuración, **en lugar de definir estos dos objetos como @Bean**, los configuramos
+a través del método **configure(AuthenticationManagerBuilder auth)**. Sobreescribimos este método de
+la clase abstracta **WebSecurityConfigurerAdapter** y usamos su parámetro de tipo **AuthenticationManagerBuilder**
+para configurar el **UserDetailsService y el PasswordEncoder**.
+
+**Configuración de UserDetailsService y PasswordEncoder en configure()**
+
+````
+@Override
+protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    UserDetails userDetails = User.builder()
+            .username("admin")
+            .password("12345")
+            .authorities("read")
+            .build();
+    InMemoryUserDetailsManager inMemoryUserDetailsManager = new InMemoryUserDetailsManager();
+    inMemoryUserDetailsManager.createUser(userDetails);
+
+    auth.userDetailsService(inMemoryUserDetailsManager)
+            .passwordEncoder(NoOpPasswordEncoder.getInstance());
+}
+````
+
+Cualquiera de las dos opciones de configuración mostradas en los pasos anteriores, es correcta.
+
+````
+[@Bean UserDetailsService y @Bean PasswordEncoder] vs [@Override configure(AuthenticationManagerBuilder auth)]
+````
+
+**La primera opción**, en la que agregamos los **beans** al contexto, le permite inyectar los valores
+en otra clase donde podría necesitarlos. **Pero si en nuestro caso no necesitamos** eso, **la segunda
+opción sería igualmente buena**. Sin embargo, se recomienda que evitemos mezclar configuraciones
+porque podría crear confusión.
+
+**Configuración de la gestión de usuarios en memoria**
+
+Hasta ahora, hemos visto 2 opciones de configuración, la primera usando los @Bean y la segunda
+sobreescribiendo el método configure(). Para esta segunda opción, existe otra manera de poder
+configurar los usuarios en memoria:
+
+````
+@Override
+protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    auth.inMemoryAuthentication()
+            .withUser("admin")
+            .password("12345")
+            .authorities("read")
+            .and()
+            .passwordEncoder(NoOpPasswordEncoder.getInstance());
+}
+````
+
+Para este último enfoque, el autor del libro **no lo recomienda**, ya que le parece
+mejor separar y escribir responsabilidades lo más desacopladas posible en una aplicación.
+
+En conclusión, podríamos decir que es **mejor usar los @Bean UserDetailsService y PasswordEncoder (será la opción que
+dejaremos habilitada)** o si se opta por sobreescribir el método configure(AuthenticationManagerBuilder auth), definir
+los objetos por separado y no hacer la concatenación que vemos en el código del ejemplo anterior.
