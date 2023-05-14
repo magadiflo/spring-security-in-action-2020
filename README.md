@@ -119,3 +119,33 @@ debe mostrarnos el mensaje devuelto por el endpoint: **hello!**.
 ````
 curl -v -u admin:12345 http://localhost:8080/greetings/hello
 ````
+
+## [Pág. 48] Anulando la configuración de autorización del endpoint
+
+Si queremos personalizar la seguridad de los endpoints, como definir qué tipo de usuarios
+pueden acceder a un endpoint determinado o qué endpoint está permitido para el acceso de
+todos los usuarios, o personalizar el tipo de autenticación **(por defecto es el HTTP Basic)**,
+o realizar otras configuraciones relacionadas, debemos sobreescribir el método **configure(HttpSecurity http)**
+de la clase abstracta **WebSecurityConfigurerAdapter** la cual debemos extenderla en nuestra clase de configuración.
+
+````
+@Configuration
+public class ProjectConfig extends WebSecurityConfigurerAdapter {
+
+    /* other code */
+    
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.httpBasic();
+        http.authorizeRequests().anyRequest().permitAll();
+    }
+}
+````
+
+Realizamos la configuración para que cualquier request que se envíe a
+nuestra aplicación no requiera autenticarse, así que probamos con curl sin enviarle
+credencial alguno y como respuesta nos mostrará el mensaje **hello!**.
+
+````
+ curl -v http://localhost:8080/greetings/hello
+````
