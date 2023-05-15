@@ -312,3 +312,67 @@ pida las credenciales.
 ````
 curl -v -u martin:12345 http://localhost:8080/greetings/hello
 ````
+
+## [Pág. 56] Usando múltiples clases de configuración en su proyecto
+
+En los ejemplos implementados anteriormente, solo usamos una clase de configuración. Sin embargo, es una buena práctica
+separar las responsabilidades incluso para las clases de configuración. Necesitamos esta separación porque la
+configuración empieza a ser más compleja.
+
+Siempre es una buena práctica tener solo una clase por cada responsabilidad. Para este ejemplo, podemos separar la
+**configuración de administración de usuarios de la configuración de autorización**. Hacemos eso definiendo dos clases
+de configuración: **UserManagementConfig** y **WebAuthorizationConfig**:
+
+**UserManagementConfig**
+
+````
+@Configuration
+public class UserManagementConfig {
+    @Bean
+    public UserDetailsService userDetailsService() {
+        UserDetails userDetails = User.builder()
+                .username("admin")
+                .password("12345")
+                .authorities("read")
+                .build();
+        InMemoryUserDetailsManager inMemoryUserDetailsManager = new InMemoryUserDetailsManager();
+        inMemoryUserDetailsManager.createUser(userDetails);
+        return inMemoryUserDetailsManager;
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return NoOpPasswordEncoder.getInstance();
+    }
+}
+````
+
+En este caso, la clase UserManagementConfig solo contiene los dos beans que se encargan de la gestión de usuarios:
+UserDetailsService y PasswordEncoder.
+
+Configuraremos los dos objetos como beans porque esta clase no puede extender WebSecurityConfigurerAdapter,
+ya que esta clase abstracta ya fue extendida en la otra clase WebAuthorizationConfig.
+
+**WebAuthorizationConfig**
+
+````
+@Configuration
+public class WebAuthorizationConfig extends WebSecurityConfigurerAdapter {
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.httpBasic();
+        http.authorizeRequests().anyRequest().authenticated();
+    }
+}
+````
+
+Aquí, la clase WebAuthorizationConfig necesita extender WebSecurityConfigurerAdapter y anular el método configure (
+HttpSecurity http).
+
+> **NOTA**  
+> En este caso, no puede tener ambas clases extendiendo WebSecurityConfigurerAdapter. Si lo hace, la inyección de
+> dependencia fallará.
+
+Sobre las otras clases que teníamos **ProjectConfig** y **CustomAuthenticationProvider** las eliminamos, ya que ahora
+las configuraciones las definimos por separado y además estamos haciendo uso de los @Bean UserDetailsService y
+PasswordEncoder.
