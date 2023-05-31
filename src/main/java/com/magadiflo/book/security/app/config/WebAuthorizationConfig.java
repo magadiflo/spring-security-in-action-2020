@@ -1,5 +1,7 @@
 package com.magadiflo.book.security.app.config;
 
+import com.magadiflo.book.security.app.handlers.CustomAuthenticationFailureHandler;
+import com.magadiflo.book.security.app.handlers.CustomAuthenticationSuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -12,12 +14,18 @@ public class WebAuthorizationConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private AuthenticationProvider authenticationProvider;
 
+    @Autowired
+    private CustomAuthenticationSuccessHandler authenticationSuccessHandler;
+    @Autowired
+    private CustomAuthenticationFailureHandler authenticationFailureHandler;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.httpBasic(c -> {
-            c.realmName("OTHER");
-            c.authenticationEntryPoint(new CustomEntryPoint());
-        });
+        http.formLogin()
+                .successHandler(this.authenticationSuccessHandler)
+                .failureHandler(this.authenticationFailureHandler)
+                .and()
+                .httpBasic();
         http.authorizeRequests().anyRequest().authenticated();
     }
 
