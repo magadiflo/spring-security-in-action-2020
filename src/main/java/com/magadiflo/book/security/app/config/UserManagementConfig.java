@@ -22,23 +22,17 @@ public class UserManagementConfig {
         UserDetails userDetails1 = User.builder()
                 .username("admin")
                 .password("12345")
-                .roles("ADMIN")
+                .authorities("premium")
                 .build();
         UserDetails userDetails2 = User.builder()
                 .username("martin")
                 .password("12345")
-                .roles("READER")
-                .build();
-        UserDetails userDetails3 = User.builder()
-                .username("nophy")
-                .password("12345")
-                .roles("MANAGER")
+                .authorities("read")
                 .build();
 
         InMemoryUserDetailsManager inMemoryUserDetailsManager = new InMemoryUserDetailsManager();
         inMemoryUserDetailsManager.createUser(userDetails1);
         inMemoryUserDetailsManager.createUser(userDetails2);
-        inMemoryUserDetailsManager.createUser(userDetails3);
 
         return inMemoryUserDetailsManager;
     }

@@ -11,6 +11,7 @@ public class ProjectConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.httpBasic();
         http.authorizeRequests()
-                .antMatchers("/greetings/hello").authenticated();
+                .regexMatchers(".*/(us|uk|ca)+/(en|fr).*").authenticated()
+                .anyRequest().hasAuthority("premium");
     }
 }
