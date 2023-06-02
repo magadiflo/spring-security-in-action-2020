@@ -10,6 +10,9 @@ public class ProjectConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.httpBasic();
-        http.authorizeRequests().anyRequest().hasRole("ADMIN");
+        http.authorizeRequests()
+                .mvcMatchers("/greetings/hello").hasRole("ADMIN")
+                .mvcMatchers("/greetings/ciao").hasRole("MANAGER")
+                .anyRequest().authenticated();
     }
 }

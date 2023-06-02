@@ -13,4 +13,13 @@ public class HelloController {
         return "¡Hello!";
     }
 
+    @GetMapping(path = "/ciao")
+    public String ciao() {
+        return "¡Ciao!";
+    }
+
+    @GetMapping(path = "/hola")
+    public String hola() {
+        return "¡Hola!";
+    }
 }
