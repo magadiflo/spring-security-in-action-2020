@@ -10,9 +10,7 @@ public class ProjectConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.httpBasic();
-        http.csrf().disable();
         http.authorizeRequests()
-                .mvcMatchers("/products/{code:^[0-9]*$}").permitAll()
-                .anyRequest().denyAll();
+                .antMatchers("/greetings/hello").authenticated();
     }
 }
