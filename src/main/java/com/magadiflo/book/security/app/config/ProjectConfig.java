@@ -1,5 +1,6 @@
 package com.magadiflo.book.security.app.config;
 
+import com.magadiflo.book.security.app.filters.AuthenticationLoginFilter;
 import com.magadiflo.book.security.app.filters.RequestValidationFilter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,6 +13,7 @@ public class ProjectConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.addFilterBefore(new RequestValidationFilter(), BasicAuthenticationFilter.class)
+                .addFilterAfter(new AuthenticationLoginFilter(), BasicAuthenticationFilter.class)
                 .authorizeRequests().anyRequest().permitAll();
     }
 }
