@@ -22,7 +22,7 @@ public class UserManagementConfig {
         UserDetails userDetails1 = User.builder()
                 .username("admin")
                 .password("12345")
-                .authorities("premium")
+                .authorities("read", "write")
                 .build();
         UserDetails userDetails2 = User.builder()
                 .username("martin")
