@@ -9,6 +9,7 @@ public class ProjectConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-
+        http.authorizeRequests().anyRequest().authenticated();
+        http.formLogin().defaultSuccessUrl("/main", true);
     }
 }
