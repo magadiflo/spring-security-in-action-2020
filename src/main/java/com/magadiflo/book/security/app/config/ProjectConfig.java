@@ -1,26 +1,18 @@
 package com.magadiflo.book.security.app.config;
 
-import com.magadiflo.book.security.app.filters.AuthenticationLoginFilter;
-import com.magadiflo.book.security.app.filters.RequestValidationFilter;
-import com.magadiflo.book.security.app.filters.StaticKeyAuthenticationFilter;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.magadiflo.book.security.app.filters.CsrfTokenLogger;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.csrf.CsrfFilter;
 
 @Configuration
 public class ProjectConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    private StaticKeyAuthenticationFilter customFilter;
-
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .addFilterBefore(new RequestValidationFilter(), BasicAuthenticationFilter.class)
-                .addFilterAt(this.customFilter, BasicAuthenticationFilter.class)
-                .addFilterAfter(new AuthenticationLoginFilter(), BasicAuthenticationFilter.class)
+                .addFilterAfter(new CsrfTokenLogger(), CsrfFilter.class)
                 .authorizeRequests().anyRequest().permitAll();
     }
 }

@@ -1,25 +1,20 @@
 package com.magadiflo.book.security.app.controllers;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(path = "/greetings")
 public class HelloController {
-
     @GetMapping(path = "/hello")
-    public String hello() {
-        return "¡Hello!";
+    public String getHello() {
+        return "Get ¡Hello!";
     }
 
-    @GetMapping(path = "/ciao")
-    public String ciao() {
-        return "¡Ciao!";
-    }
-
-    @GetMapping(path = "/hola")
-    public String hola() {
-        return "¡Hola!";
+    @PostMapping(path = "/hello")
+    public String postHello() {
+        return "Post ¡Hello!";
     }
 }
