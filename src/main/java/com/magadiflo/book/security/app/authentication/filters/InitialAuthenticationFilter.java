@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -24,6 +25,7 @@ import java.util.Map;
 public class InitialAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
+    @Lazy
     private AuthenticationManager authenticationManager;
     @Value("${jwt.signing.key}")
     private String signinKey;
