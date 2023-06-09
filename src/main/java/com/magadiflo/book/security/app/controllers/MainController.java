@@ -12,7 +12,7 @@ public class MainController {
 
     @GetMapping(path = "/")
     public String main(OAuth2AuthenticationToken token) {
-        LOG.info(String.valueOf(token));
+        LOG.info(String.valueOf(token.getPrincipal()));
         return "main.html";
     }
 }
