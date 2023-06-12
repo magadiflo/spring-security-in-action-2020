@@ -16,6 +16,7 @@ public class UserManagementConfig {
         UserDetails userDetails = User.builder()
                 .username("admin")
                 .password("12345")
+                .authorities("read")
                 .build();
 
         InMemoryUserDetailsManager inMemoryUserDetailsManager = new InMemoryUserDetailsManager();
