@@ -1,42 +1,24 @@
 package com.magadiflo.book.security.app.config;
 
-import org.springframework.context.annotation.Bean;
+import com.magadiflo.book.security.app.security.DocumentsPermissionEvaluator;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
+import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration;
 
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @Configuration
-public class ProjectConfig {
-    @Bean
-    public UserDetailsService userDetailsService() {
+public class ProjectConfig extends GlobalMethodSecurityConfiguration {
 
-        UserDetails u1 = User.builder()
-                .username("admin")
-                .password("12345")
-                .authorities("write")
-                .build();
+    @Autowired
+    private DocumentsPermissionEvaluator evaluator;
 
-        UserDetails u2 = User.builder()
-                .username("martin")
-                .password("12345")
-                .authorities("read")
-                .build();
-
-        InMemoryUserDetailsManager inMemoryUserDetailsManager = new InMemoryUserDetailsManager();
-        inMemoryUserDetailsManager.createUser(u1);
-        inMemoryUserDetailsManager.createUser(u2);
-
-        return inMemoryUserDetailsManager;
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance();
+    @Override
+    protected MethodSecurityExpressionHandler createExpressionHandler() {
+        DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
+        expressionHandler.setPermissionEvaluator(this.evaluator);
+        return expressionHandler;
     }
 }
