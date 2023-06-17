@@ -15,15 +15,15 @@ public class UserManagementConfig {
     public UserDetailsService userDetailsService() {
 
         UserDetails u1 = User.builder()
-                .username("admin")
+                .username("nikolai")
                 .password("12345")
-                .roles("admin")
+                .authorities("read")
                 .build();
 
         UserDetails u2 = User.builder()
-                .username("martin")
+                .username("julien")
                 .password("12345")
-                .roles("manager")
+                .authorities("write")
                 .build();
 
         InMemoryUserDetailsManager inMemoryUserDetailsManager = new InMemoryUserDetailsManager();
