@@ -13,12 +13,12 @@ public class WorkoutController {
     @Autowired
     private WorkoutService workoutService;
 
-    @PostMapping("/")
+    @PostMapping
     public void add(@RequestBody Workout workout) {
         this.workoutService.saveWorkout(workout);
     }
 
-    @GetMapping("/")
+    @GetMapping
     public List<Workout> findAll() {
         return this.workoutService.findWorkouts();
     }
