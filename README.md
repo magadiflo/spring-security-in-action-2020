@@ -1,5 +1,12 @@
 # [Book - Spring Security In Action 2020](https://github.com/havinhphu188/spring-security-in-action-source)
 
+---
+
+Repositorio original del libro
+[spring-security-in-action-source](https://github.com/havinhphu188/spring-security-in-action-source.git)
+
+---
+
 ## [Pág. 36] Configuración por defecto se Spring Security
 
 Una vez agregada la dependencia de Spring Security:
